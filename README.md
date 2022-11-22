@@ -40,13 +40,11 @@ Tiktag server offers the following features,
    > Oops...asset not found, or run `tiktag <myfile>` to host it
    ```
 
-## Design & roadmap
+## Design
 
-Tiktag was firstly designed to streamline photo preparation before being hosted and published/referenced in a blog post.
+Tiktag was firstly designed to streamline photo preparation before being hosted and published/referenced in a blog post. We'll see where it leads us.
 
-We'll see where it leads us.
-
-### Data objects (the nouns)
+### Data objects (key nouns)
 
 List of key data objects in TikTag,
 
@@ -63,7 +61,14 @@ List of key data objects in TikTag,
   * `SecretKey`
   * `TargetBucket`
 
-### Roadmap
+### Key verbs
+
+* `tiktag`, command for tagging and storing an asset
+  * example of tagging an asset, `tiktag myfilename.png -b s3aws`
+  * example of minting an asset, `tiktag myfilename.png -tz sui` 
+    - `tz` is initial of Chance's former/deceased co-founder, Tao Zui, in memory of his ingenuity inspiring Chance's design aesthetics)
+
+## Roadmap
 
 1. v0.1, Validating the idea and usability, a local command line tool
   * jobs are handled locally by user
