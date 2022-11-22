@@ -85,6 +85,12 @@ Candidate tech dependencies for making TikTag happen,
   * RClone, for handling jobs with object storage
 * (maybe) Background (cron) job handling on [Dkron](https://dkron.io/), and [GoFS](https://github.com/no-src/gofs), across-platform file synchronization tool out of the box based on golang
 
+## Contributors
+
+* [Chance Jiang](https://github.com/chancefcc), designer
+* [Twins Ant](https://github.com/twinsant), lead developer
+* Ryan Sy, lead on user success 
+
 ## Licensing
 
 [The 3-Clause BSD License](https://opensource.org/licenses/BSD-3-Clause)
