@@ -1,12 +1,11 @@
-// You can edit this code!
-// Click here and start typing.
+/*
+Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+
+*/
 package main
 
-import (
-	"fmt"
-	// "github.com/spf13/cobra"
-)
+import "github.com/twinsant/tiktag/cmd"
 
 func main() {
-	fmt.Println("Hello, 世界")
+	cmd.Execute()
 }

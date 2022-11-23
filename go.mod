@@ -1,4 +1,4 @@
-module tiktag
+module github.com/twinsant/tiktag
 
 go 1.19
 
