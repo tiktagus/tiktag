@@ -29,7 +29,7 @@ Tiktag server offers the following features,
 2. Search for a stored file and retrieve it's URL,
    
    ```
-   > tiktag -s myfilename.png
+   > tiktag query myfilename.png
    > Success! Here is your hosted asset's URL,
    > https://s3.tikoly.com/village/563583552944996352.png
    ```
