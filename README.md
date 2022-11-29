@@ -93,7 +93,7 @@ Candidate tech dependencies for making TikTag happen,
 ## Contributors
 
 * [Chance Jiang](https://github.com/chancefcc), designer
-* [Twins Ant](https://github.com/twinsant), lead developer
+* [Atman An](https://github.com/twinsant), lead developer
 * Ryan Sy, lead on user success 
 
 ## Licensing
