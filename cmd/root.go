@@ -10,8 +10,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/sony/sonyflake"
 	"github.com/spf13/cobra"
 )
+
+func fakeMachineID(uint16) bool {
+	return true
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -22,6 +27,7 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		// sha256
 		f, err := os.Open(args[0])
 		if err != nil {
 			log.Fatal(err)
@@ -34,6 +40,21 @@ var rootCmd = &cobra.Command{
 		}
 
 		fmt.Printf("%x\n", h.Sum(nil))
+
+		// Sonyflake Id
+		var st sonyflake.Settings
+		st.CheckMachineID = fakeMachineID
+		sf := sonyflake.NewSonyflake(st)
+		if sf == nil {
+			log.Fatal("New Sonyflake failed!")
+		}
+
+		id, err := sf.NextID()
+		if err != nil {
+			log.Fatal("NextID failed!")
+		}
+
+		fmt.Println(id)
 	},
 }
 
