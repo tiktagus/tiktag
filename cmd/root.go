@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -35,6 +36,19 @@ type Product struct {
 	Amount uint
 }
 
+func GetFileContentType(ouput *os.File) (string, error) {
+	// to sniff the content type only the first
+	// 512 bytes are used.
+	buf := make([]byte, 512)
+	_, err := ouput.Read(buf)
+	if err != nil {
+		return "", err
+	}
+	// the function that actually does the trick
+	contentType := http.DetectContentType(buf)
+	return contentType, nil
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "tiktag [file to upload]",
@@ -51,6 +65,10 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 		defer f.Close()
+		contentType, err := GetFileContentType(f)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		h := sha256.New()
 		if _, err := io.Copy(h, f); err != nil {
@@ -110,7 +128,6 @@ var rootCmd = &cobra.Command{
 		_, file := filepath.Split(fn)
 		objectName := file
 		filePath := fn
-		contentType := "image/jpeg"
 
 		// Upload the zip file with FPutObject
 		info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
