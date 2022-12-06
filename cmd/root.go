@@ -119,6 +119,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
+		log.Println(info)
 
 		// immudb
 		db, err := gorm.Open(immudb.New(immudb.Config{
