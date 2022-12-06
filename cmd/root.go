@@ -4,13 +4,23 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+	"crypto/sha256"
+	"fmt"
+	"io"
+	"log"
 	"os"
+	"path/filepath"
 
-	"github.com/codenotary/immudb/pkg/client"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/sony/sonyflake"
+
 	// immugorm "github.com/codenotary/immugorm"
 	immudb "github.com/0ctanium/gorm-immudb"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
@@ -35,96 +45,87 @@ var rootCmd = &cobra.Command{
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		// sha256
-		// f, err := os.Open(args[0])
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// defer f.Close()
+		fn := args[0]
+		f, err := os.Open(fn)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
 
-		// h := sha256.New()
-		// if _, err := io.Copy(h, f); err != nil {
-		// 	log.Fatal(err)
-		// }
+		h := sha256.New()
+		if _, err := io.Copy(h, f); err != nil {
+			log.Fatal(err)
+		}
 
-		// fmt.Printf("%x\n", h.Sum(nil))
+		fmt.Printf("%x\n", h.Sum(nil))
 
 		// Sonyflake Id
-		// var st sonyflake.Settings
-		// st.CheckMachineID = fakeMachineID
-		// sf := sonyflake.NewSonyflake(st)
-		// if sf == nil {
-		// 	log.Fatal("New Sonyflake failed!")
-		// }
+		var st sonyflake.Settings
+		st.CheckMachineID = fakeMachineID
+		sf := sonyflake.NewSonyflake(st)
+		if sf == nil {
+			log.Fatal("New Sonyflake failed!")
+		}
 
-		// id, err := sf.NextID()
-		// if err != nil {
-		// 	log.Fatal("NextID failed!")
-		// }
+		id, err := sf.NextID()
+		if err != nil {
+			log.Fatal("NextID failed!")
+		}
 
-		// fmt.Println(id)
+		fmt.Println(id)
 
 		// Minio
-		// ctx := context.Background()
-		// endpoint := "s3.tikoly.com"
-		// // FIXME: DO NOT commit!!!!
-		// accessKeyID := "ZaRTBCf2g4ZMGVgu"
-		// secretAccessKey := "xCHRw9vv1etAUx0pABvRQiDLnF4euowj"
-		// useSSL := true
+		ctx := context.Background()
+		endpoint := viper.GetString("minio.endpoint")
+		accessKeyID := viper.GetString("minio.id")
+		secretAccessKey := viper.GetString("minio.secret")
+		useSSL := viper.GetBool("minio.useSSL")
 
-		// // Initialize minio client object.
-		// minioClient, err := minio.New(endpoint, &minio.Options{
-		// 	Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		// 	Secure: useSSL,
-		// })
-		// if err != nil {
-		// 	log.Fatalln(err)
-		// }
+		// Initialize minio client object.
+		minioClient, err := minio.New(endpoint, &minio.Options{
+			Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+			Secure: useSSL,
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
 
-		// // Make a new bucket called mymusic.
-		// bucketName := "tiktag"
+		// Make a new bucket called mymusic.
+		bucketName := viper.GetString("minio.bucketName")
 
-		// err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{})
-		// if err != nil {
-		// 	// Check to see if we already own this bucket (which happens if you run this twice)
-		// 	exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
-		// 	if errBucketExists == nil && exists {
-		// 		log.Printf("We already own %s\n", bucketName)
-		// 	} else {
-		// 		log.Fatalln(err)
-		// 	}
-		// } else {
-		// 	log.Printf("Successfully created %s\n", bucketName)
-		// }
+		err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{})
+		if err != nil {
+			// Check to see if we already own this bucket (which happens if you run this twice)
+			exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
+			if errBucketExists == nil && exists {
+				log.Printf("We already own %s\n", bucketName)
+			} else {
+				log.Fatalln(err)
+			}
+		} else {
+			log.Printf("Successfully created %s\n", bucketName)
+		}
 
-		// // Upload the zip file
-		// objectName := "demo.jpg"
-		// filePath := "./demo.jpg"
-		// contentType := "image/jpeg"
+		// Upload the zip file
+		_, file := filepath.Split(fn)
+		objectName := file
+		filePath := fn
+		contentType := "image/jpeg"
 
-		// // Upload the zip file with FPutObject
-		// info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
-		// if err != nil {
-		// 	log.Fatalln(err)
-		// }
+		// Upload the zip file with FPutObject
+		info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
+		if err != nil {
+			log.Fatalln(err)
+		}
 
-		// log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
+		log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
 
 		// immudb
-		opts := client.DefaultOptions()
-
-		opts.Username = "immudb"
-		opts.Password = "immudb"
-		opts.Database = "defaultdb"
-		opts.HealthCheckRetries = 10
-
-		// db, err := gorm.Open(immugorm.OpenWithOptions(opts, &immugorm.ImmuGormConfig{Verify: false}), &gorm.Config{
-		// 	Logger: logger.Default.LogMode(logger.Info),
-		// })
 		db, err := gorm.Open(immudb.New(immudb.Config{
-			DSN:                "immudb://immudb:immudb@127.0.0.1:3322/defaultdb", // data source name, refer https://docs.immudb.io/master/develop/sqlstdlib.html
-			DefaultVarcharSize: 256,                                               // add default size for string fields, not a primary key, no index defined and don't have default values
-			DefaultBlobSize:    256,                                               // add default size for bytes fields, not a primary key, no index defined and don't have default values
-			DisableDeletion:    true,                                              // disable row deletion, which not supported before ImmuDB 1.2
+			DSN: viper.GetString("immudb.dsn"), // data source name, refer https://docs.immudb.io/master/develop/sqlstdlib.html
+			// DefaultVarcharSize: 256,                                               // add default size for string fields, not a primary key, no index defined and don't have default values
+			// DefaultBlobSize:    256,                                               // add default size for bytes fields, not a primary key, no index defined and don't have default values
+			// DisableDeletion:    true,                                              // disable row deletion, which not supported before ImmuDB 1.2
 		}), &gorm.Config{})
 		if err != nil {
 			panic(err)
@@ -170,10 +171,10 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Delete - delete product
-		// err = db.Delete(&product, product.ID).Error
-		// if err != nil {
-		// 	panic(err)
-		// }
+		err = db.Delete(&product, product.ID).Error
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 
@@ -196,4 +197,10 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	viper.SetConfigName("config")        // name of config file (without extension)
+	viper.SetConfigType("yaml")          // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath("/etc/tiktag/")  // path to look for the config file in
+	viper.AddConfigPath("$HOME/.tiktag") // call multiple times to add many search paths
+	viper.AddConfigPath(".")             // optionally look for config in the working directory
+	viper.ReadInConfig()
 }
