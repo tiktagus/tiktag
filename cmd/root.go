@@ -13,16 +13,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/codenotary/immudb/embedded/sql"
+	"github.com/codenotary/immudb/embedded/store"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sony/sonyflake"
 
-	// immugorm "github.com/codenotary/immugorm"
-	immudb "github.com/0ctanium/gorm-immudb"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 func fakeMachineID(uint16) bool {
@@ -47,6 +45,12 @@ func GetFileContentType(ouput *os.File) (string, error) {
 	// the function that actually does the trick
 	contentType := http.DetectContentType(buf)
 	return contentType, nil
+}
+
+func handleErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -138,61 +142,92 @@ var rootCmd = &cobra.Command{
 		log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
 		log.Println(info)
 
-		// immudb
-		db, err := gorm.Open(immudb.New(immudb.Config{
-			DSN: viper.GetString("immudb.dsn"), // data source name, refer https://docs.immudb.io/master/develop/sqlstdlib.html
-			// DefaultVarcharSize: 256,                                               // add default size for string fields, not a primary key, no index defined and don't have default values
-			// DefaultBlobSize:    256,                                               // add default size for bytes fields, not a primary key, no index defined and don't have default values
-			// DisableDeletion:    true,                                              // disable row deletion, which not supported before ImmuDB 1.2
-		}), &gorm.Config{})
-		if err != nil {
-			panic(err)
+		// immudb embedded
+		// create/open immudb store at specified path
+		db, err := store.Open("data", store.DefaultOptions())
+		handleErr(err)
+		defer db.Close()
+
+		// initialize sql engine (specify a key-prefix to isolate generated kv entries)
+		engine, err := sql.NewEngine(db, sql.DefaultOptions().WithPrefix([]byte("sql")))
+		handleErr(err)
+
+		_, _, err = engine.Exec("CREATE DATABASE db1;", nil, nil)
+		handleErr(err)
+
+		// set the database to use in the context of the ongoing sql tx
+		_, _, err = engine.Exec("USE DATABASE db1;", nil, nil)
+		handleErr(err)
+
+		// a sql tx is created and carried over next statements
+		sqltx, _, err := engine.Exec("BEGIN TRANSACTION;", nil, nil)
+		handleErr(err)
+
+		// ensure tx is closed (it won't affect committed tx)
+		defer engine.Exec("ROLLBACK;", nil, sqltx)
+
+		// creates a table
+		_, _, err = engine.Exec(`
+		CREATE TABLE journal (
+			id INTEGER,
+			date TIMESTAMP,
+			creditaccount INTEGER,
+			debitaccount INTEGER,
+			amount INTEGER,
+			description VARCHAR,
+			PRIMARY KEY id
+		);`, nil, sqltx)
+		handleErr(err)
+
+		// insert some rows
+		_, _, err = engine.Exec(`
+		INSERT INTO journal (
+			id,
+			date,
+			creditaccount,
+			debitaccount,
+			amount,
+			description
+		) VALUES 
+			(1, NOW(), 100, 0, 4000, 'CREDIT'),
+			(2, NOW(), 0, 50, 4100, 'DEBIT')
+		;`, nil, sqltx)
+		handleErr(err)
+
+		// query data including ongoing and unconfirmed changes
+		rowReader, err := engine.Query(`
+			SELECT id, date, creditaccount, debitaccount, amount, description
+			FROM journal
+			WHERE amount > @value;
+	`, map[string]interface{}{"value": 100}, sqltx)
+		handleErr(err)
+
+		// ensure row reader is closed
+		defer rowReader.Close()
+
+		// selected columns can be read from the rowReader
+		cols, err := rowReader.Columns()
+		handleErr(err)
+
+		for {
+			// iterate over result set
+			row, err := rowReader.Read()
+			if err == sql.ErrNoMoreRows {
+				break
+			}
+			handleErr(err)
+
+			// each row contains values for the selected columns
+			log.Printf("row: %v\n", row.ValuesBySelector[cols[0].Selector()].Value())
 		}
 
-		// Migrate the schema
-		err = db.AutoMigrate(&Product{})
-		if err != nil {
-			panic(err)
-		}
-		// Create
-		err = db.Create(&Product{Code: "D43", Price: 100, Amount: 500}).Error
-		if err != nil {
-			panic(err)
-		}
-		// Read
-		var product Product
-		// find just created one
-		err = db.First(&product).Error
-		if err != nil {
-			panic(err)
-		}
-		// find product with code D42
-		err = db.First(&product, "code = ?", "D43").Error
-		if err != nil {
-			panic(err)
-		}
-		// Update - update product's price to 200
-		err = db.Model(&product).Update("Price", 888).Error
-		if err != nil {
-			panic(err)
-		}
+		// close row reader
+		rowReader.Close()
 
-		// Update - update multiple fields
-		err = db.Model(&product).Updates(Product{Price: 200, Code: "F42"}).Error
-		if err != nil {
-			panic(err)
-		}
+		// commit ongoing transaction
+		_, _, err = engine.Exec("COMMIT;", nil, sqltx)
+		handleErr(err)
 
-		err = db.Model(&product).Updates(map[string]interface{}{"Price": 200, "Code": "F42"}).Error
-		if err != nil {
-			panic(err)
-		}
-
-		// Delete - delete product
-		err = db.Delete(&product, product.ID).Error
-		if err != nil {
-			panic(err)
-		}
 	},
 }
 

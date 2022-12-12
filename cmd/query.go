@@ -11,11 +11,11 @@ import (
 
 // queryCmd represents the query command
 var queryCmd = &cobra.Command{
-	Use:   "query",
+	Use:   "search",
 	Short: "Search for a stored file and retrieve it's URL",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("query called")
+		fmt.Println("search called")
 	},
 }
 
