@@ -20,5 +20,6 @@
 # Go workspace file
 go.work
 
+# Project dev file
 config.yaml
 data

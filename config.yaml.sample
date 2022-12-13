@@ -1,6 +1,3 @@
-immudb:
-  dsn: "immudb://immudb:immudb@127.0.0.1:3322/defaultdb"
-
 minio:
   endpoint: "s3.example.com"
   id: "example"
