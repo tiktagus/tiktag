@@ -28,9 +28,9 @@ var rootCmd = &cobra.Command{
 
 		info := publishFile(fn, contentType)
 		fmt.Println(info)
+		// https://s3.tikoly.com/tiktag/myfilename.jpg
 
 		saveAsset()
-
 	},
 }
 
