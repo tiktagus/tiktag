@@ -12,7 +12,6 @@ Tiktag server offers the following features,
 2. Upload a photo and get its S3 URL back as a response, for use in Markdown for publishing
 3. Configurable params via `config.yml`, on  
    * which S3 compatible object storage service to host the photo, default is MinIO
-   * configuring file extention, i.e., `png`, `jpg`, etc.
    * initializing user config in `immudb`, for new installation
    * how search is configured, like searching by `filename` or `ttid`
 
@@ -56,10 +55,11 @@ List of key data objects in TikTag,
   * `tturl`, TikTag URL of a hosted file/photo, i.e., `https://s3.tikoly.com/village/563583552944996352.png`
     * it's constructed like, `{TargetURL}/{TargetBucket}/{ttid}.{fileext}`
 * S3 (MinIO) related,
-  * `TargetURL`
-  * `AccessKey`
-  * `SecretKey`
-  * `TargetBucket`
+  * `endpoint`
+  * `id`
+  * `secret`
+  * `useSSL`
+  * `bucketName`
 
 ### Key verbs
 
