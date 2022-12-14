@@ -89,7 +89,6 @@ func publishFile(id uint64, fn string, contentType string) string {
 	filePath := fn
 
 	// FIXME: check object name exists
-	fmt.Printf("Tik...Tag...")
 	_, err = minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		log.Fatalln(err)

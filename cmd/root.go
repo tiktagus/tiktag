@@ -26,6 +26,7 @@ var rootCmd = &cobra.Command{
 		id := getFileId()
 		// fmt.Println(id)
 
+		fmt.Printf("Tik...Tag...")
 		url := publishFile(id, fn, contentType)
 		fmt.Printf("your asset is successfully hosted at,\n%s\n", url)
 		// https://s3.tikoly.com/tiktag/myfilename.jpg
