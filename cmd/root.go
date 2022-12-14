@@ -20,17 +20,17 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fn := args[0]
 
-		fHash, contentType := getFileHash(fn)
-		fmt.Println(fHash)
+		_, contentType := getFileHash(fn)
+		// fmt.Println(fHash)
 
 		id := getFileId()
-		fmt.Println(id)
+		// fmt.Println(id)
 
-		info := publishFile(fn, contentType)
-		fmt.Println(info)
+		url := publishFile(id, fn, contentType)
+		fmt.Printf("your asset is successfully hosted at,\n%s\n", url)
 		// https://s3.tikoly.com/tiktag/myfilename.jpg
 
-		saveAsset()
+		// saveAsset()
 	},
 }
 
@@ -53,6 +53,9 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	os.Setenv("LOG_LEVEL", "warn") // Clear immudb log
+	viper.AutomaticEnv()
+
 	viper.SetConfigName("config")        // name of config file (without extension)
 	viper.SetConfigType("yaml")          // REQUIRED if the config file does not have the extension in the name
 	viper.AddConfigPath("/etc/tiktag/")  // path to look for the config file in

@@ -41,7 +41,7 @@ func saveAsset() {
 	engine, err := sql.NewEngine(db, sql.DefaultOptions().WithPrefix([]byte("sql")))
 	handleErr(err)
 
-	_, _, err = engine.Exec("CREATE DATABASE db1;", nil, nil)
+	_, _, err = engine.Exec("CREATE DATABASE IF NOT EXISTS db1;", nil, nil)
 	handleErr(err)
 
 	// set the database to use in the context of the ongoing sql tx
@@ -57,7 +57,7 @@ func saveAsset() {
 
 	// creates a table
 	_, _, err = engine.Exec(`
-		CREATE TABLE journal (
+		CREATE TABLE IF NOT EXISTS journal (
 			id INTEGER,
 			date TIMESTAMP,
 			creditaccount INTEGER,

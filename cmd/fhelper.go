@@ -49,7 +49,7 @@ func getFileHash(fn string) (string, string) {
 	return fHash, contentType
 }
 
-func publishFile(fn string, contentType string) minio.UploadInfo {
+func publishFile(id uint64, fn string, contentType string) string {
 	// Minio
 	ctx := context.Background()
 	endpoint := viper.GetString("minio.endpoint")
@@ -83,16 +83,19 @@ func publishFile(fn string, contentType string) minio.UploadInfo {
 	}
 
 	// Upload the file
-	_, file := filepath.Split(fn)
-	objectName := file
+	// _, file := filepath.Split(fn)
+	ext := filepath.Ext(fn)
+	objectName := fmt.Sprintf("%d%s", id, ext)
 	filePath := fn
 
 	// FIXME: check object name exists
-	info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
+	fmt.Printf("Tik...Tag...")
+	_, err = minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
-	return info
+	url := fmt.Sprintf("https://%s/%s/%s", endpoint, bucketName, objectName)
+	return url
 }
