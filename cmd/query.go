@@ -15,7 +15,11 @@ var queryCmd = &cobra.Command{
 	Short: "Search for a stored file and retrieve it's URL",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("search called")
+		fn := args[0]
+
+		url := searchAsset(fn)
+		fmt.Println("We found this asset at,")
+		fmt.Println(url)
 	},
 }
 
