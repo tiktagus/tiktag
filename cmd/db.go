@@ -99,6 +99,7 @@ func (db *DB) Exec(sql string) {
 func saveAsset(ttasset TTAsset) {
 	db := new(DB)
 	db.Open()
+	defer db.Close()
 
 	// insert some rows
 	SQL := fmt.Sprintf(`
@@ -113,40 +114,43 @@ func saveAsset(ttasset TTAsset) {
 		;`, ttasset.ttid, ttasset.hash, ttasset.filename, ttasset.fileext, ttasset.url)
 	// fmt.Println(SQL)
 	db.Exec(SQL)
-
-	db.Close()
 }
 
 func searchAsset(fn string) string {
-	// // query data including ongoing and unconfirmed changes
-	// rowReader, err := engine.Query(`
-	// 		SELECT id, date, creditaccount, debitaccount, amount, description
-	// 		FROM journal
-	// 		WHERE amount > @value;
-	// `, map[string]interface{}{"value": 100}, sqltx)
-	// handleErr(err)
+	db := new(DB)
+	db.Open()
+	defer db.Close()
 
-	// // ensure row reader is closed
-	// defer rowReader.Close()
+	// query data including ongoing and unconfirmed changes
+	SQL := fmt.Sprintf(`
+			SELECT url
+			FROM ttasset
+			WHERE filename = '%s';
+	`, fn)
+	rowReader, err := db.engine.Query(SQL, map[string]interface{}{"value": 100}, db.sqltx)
+	handleErr(err)
 
-	// // selected columns can be read from the rowReader
-	// cols, err := rowReader.Columns()
-	// handleErr(err)
+	// ensure row reader is closed
+	defer rowReader.Close()
 
-	// for {
-	// 	// iterate over result set
-	// 	row, err := rowReader.Read()
-	// 	if err == sql.ErrNoMoreRows {
-	// 		break
-	// 	}
-	// 	handleErr(err)
+	// selected columns can be read from the rowReader
+	cols, err := rowReader.Columns()
+	handleErr(err)
 
-	// 	// each row contains values for the selected columns
-	// 	log.Printf("row: %v\n", row.ValuesBySelector[cols[0].Selector()].Value())
-	// }
+	for {
+		// iterate over result set
+		row, err := rowReader.Read()
+		if err == sql.ErrNoMoreRows {
+			break
+		}
+		handleErr(err)
 
-	// // close row reader
-	// rowReader.Close()
+		// each row contains values for the selected columns
+		log.Printf("row: %v\n", row.ValuesBySelector[cols[0].Selector()].Value())
+	}
+
+	// close row reader
+	rowReader.Close()
 
 	url := "TODO"
 	return url
