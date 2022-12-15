@@ -49,7 +49,7 @@ func getFileHash(fn string) (string, string) {
 	return fHash, contentType
 }
 
-func publishFile(id uint64, fn string, contentType string) string {
+func publishFile(id uint64, fn string, contentType string) (string, string) {
 	// Minio
 	ctx := context.Background()
 	endpoint := viper.GetString("minio.endpoint")
@@ -96,5 +96,5 @@ func publishFile(id uint64, fn string, contentType string) string {
 
 	// log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
 	url := fmt.Sprintf("https://%s/%s/%s", endpoint, bucketName, objectName)
-	return url
+	return url, ext
 }

@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 Atman An <twinsant@gmail.com>
 */
 package cmd
 
@@ -20,18 +20,25 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fn := args[0]
 
-		_, contentType := getFileHash(fn)
+		fHash, contentType := getFileHash(fn)
 		// fmt.Println(fHash)
 
 		id := getFileId()
 		// fmt.Println(id)
 
 		fmt.Printf("Tik...Tag...")
-		url := publishFile(id, fn, contentType)
+		url, ext := publishFile(id, fn, contentType)
 		fmt.Printf("your asset is successfully hosted at,\n%s\n", url)
 		// https://s3.tikoly.com/tiktag/myfilename.jpg
 
-		// saveAsset()
+		ttasset := TTAsset{
+			ttid:     id,
+			hash:     fHash,
+			filename: fn,
+			fileext:  ext,
+			url:      url,
+		}
+		saveAsset(ttasset)
 	},
 }
 
