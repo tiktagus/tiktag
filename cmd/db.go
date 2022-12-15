@@ -50,8 +50,7 @@ func (db *DB) Open() {
 	// immudb embedded
 	// create/open immudb store at specified path
 	db.store, err = store.Open("data", store.DefaultOptions())
-	// handleErr(err)
-	// defer db.Close()
+	handleErr(err)
 
 	// initialize sql engine (specify a key-prefix to isolate generated kv entries)
 	db.engine, err = sql.NewEngine(db.store, sql.DefaultOptions().WithPrefix([]byte("sql")))
@@ -68,9 +67,6 @@ func (db *DB) Open() {
 	db.sqltx, _, err = db.engine.Exec("BEGIN TRANSACTION;", nil, nil)
 	handleErr(err)
 
-	// ensure tx is closed (it won't affect committed tx)
-	// defer engine.Exec("ROLLBACK;", nil, sqltx)
-
 	// creates a table
 	_, _, err = db.engine.Exec(`
 		CREATE TABLE IF NOT EXISTS TTAsset (
@@ -82,6 +78,13 @@ func (db *DB) Open() {
 			PRIMARY KEY ttid
 		);`, nil, db.sqltx)
 	handleErr(err)
+}
+
+func (db *DB) Close() {
+	// ensure tx is closed (it won't affect committed tx)
+	db.engine.Exec("ROLLBACK;", nil, db.sqltx)
+
+	db.store.Close()
 }
 
 func (db *DB) Exec(sql string) {
@@ -110,6 +113,8 @@ func saveAsset(ttasset TTAsset) {
 		;`, ttasset.ttid, ttasset.hash, ttasset.filename, ttasset.fileext, ttasset.url)
 	// fmt.Println(SQL)
 	db.Exec(SQL)
+
+	db.Close()
 }
 
 func searchAsset(fn string) string {
