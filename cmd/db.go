@@ -116,7 +116,7 @@ func saveAsset(ttasset TTAsset) {
 	db.Exec(SQL)
 }
 
-func searchAsset(fn string) string {
+func searchAsset(fHash string) string {
 	db := new(DB)
 	db.Open()
 	defer db.Close()
@@ -125,8 +125,8 @@ func searchAsset(fn string) string {
 	SQL := fmt.Sprintf(`
 			SELECT url
 			FROM ttasset
-			WHERE filename = '%s';
-	`, fn)
+			WHERE hash = '%s';
+	`, fHash)
 	rowReader, err := db.engine.Query(SQL, map[string]interface{}{"value": 100}, db.sqltx)
 	handleErr(err)
 
@@ -137,6 +137,7 @@ func searchAsset(fn string) string {
 	cols, err := rowReader.Columns()
 	handleErr(err)
 
+	url := ""
 	for {
 		// iterate over result set
 		row, err := rowReader.Read()
@@ -146,12 +147,12 @@ func searchAsset(fn string) string {
 		handleErr(err)
 
 		// each row contains values for the selected columns
-		log.Printf("row: %v\n", row.ValuesBySelector[cols[0].Selector()].Value())
+		url = fmt.Sprintf("%s", row.ValuesBySelector[cols[0].Selector()].Value())
+		// log.Printf("row: %v\n", url)
 	}
 
 	// close row reader
 	rowReader.Close()
 
-	url := "TODO"
 	return url
 }

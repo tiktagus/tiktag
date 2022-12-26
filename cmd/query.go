@@ -17,7 +17,8 @@ var queryCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fn := args[0]
 
-		url := searchAsset(fn)
+		fHash, _ := getFileHash(fn)
+		url := searchAsset(fHash)
 		fmt.Println("We found this asset at,")
 		fmt.Println(url)
 	},

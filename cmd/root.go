@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -22,6 +23,12 @@ var rootCmd = &cobra.Command{
 
 		fHash, contentType := getFileHash(fn)
 		// fmt.Println(fHash)
+		url := searchAsset(fHash)
+		if strings.Compare(url, "") == 1 {
+			fmt.Println("We found this asset at,")
+			fmt.Println(url)
+			return
+		}
 
 		id := getFileId()
 		// fmt.Println(id)
