@@ -1,0 +1,6 @@
+minio:
+  endpoint: "s3.example.com"
+  id: "example"
+  secret: "example"
+  useSSL: true
+  bucketName: "example"
