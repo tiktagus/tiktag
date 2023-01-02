@@ -1,21 +1,19 @@
 # TikTag
 
-`TikTag` is a command-line tool for preparing images for blog post or sharing.
-
-`TikTag` is shipped as a local command-line app written in Go.
+`TikTag` is a command-line tool for hosting and sharing digital asssets via object storage.
 
 ## Features (v0.1)
 
 Tiktag server offers the following features,
 
 1. Install and run as a local command line app
-2. Upload a photo and get its S3 URL back as a response, for use in Markdown for publishing
-3. Configurable params via `config.yml`, on  
-   * which S3 compatible object storage service to host the photo, default is MinIO
-   * initializing user config in `immudb`, for new installation
-   * how search is configured, like searching by `filename` or `ttid`
+2. Upload and host a photo to your object storage of choice, and get its S3 URI, for publishing or sharing
+3. Configurable params via `config.yml`, such as,
+   * your S3 compatible object storage service of choice, such as your own MinIO instance;
+   * how search is configured;
+   * how much asset handling logs you want to share with others
 
-### Commands (the verbs)
+### Commands (examples)
 
 1. Host a photo or file,
    
@@ -41,14 +39,16 @@ Tiktag server offers the following features,
 
 ## Design
 
-Tiktag was firstly designed to streamline photo preparation before being hosted and published/referenced in a blog post. We'll see where it leads us.
+Tiktag was firstly designed to streamline photo preparation before being hosted and published/referenced in a blog post. We're increasingly seeing Tiktag's potential in NFT-related business applications we're building for our clients world-wide.
+
+We're excited to see where it leads us.
 
 ### Data objects (key nouns)
 
 List of key data objects in TikTag,
 
 * `ttasset`, top level noun / object with properties below,
-  * `ttid`, TikTag ID, unique ID for each file/image/object, also as its filename, i.e., `563583552944996352.png`
+  * `ttid`, TikTag ID, unique ID for each file/image, also as its filename, i.e., `563583552944996352.png`
   * `ttidhash`, the hash generated upon initial upload of a file, for cryptographic verification of the file's integrity
   * `filename`, original filename of a photo/file, whatever it is
   * `fileext`, file extension name, such as `.png`, `.jpg`
@@ -56,8 +56,8 @@ List of key data objects in TikTag,
     * it's constructed like, `{TargetURL}/{TargetBucket}/{ttid}.{fileext}`
 * S3 (MinIO) related,
   * `endpoint`
-  * `id`
-  * `secret`
+  * `accessKey`
+  * `secretKey`
   * `useSSL`
   * `bucketName`
 
@@ -79,16 +79,14 @@ List of key data objects in TikTag,
   * for more non-technical audience
   * better performance
 
-## Tech Stack (to evaluate)
+## Tech Stack
 
 Candidate tech dependencies for making TikTag happen,
 
 * Written in Go
-* Data store, [ImmuDB](https://github.com/codenotary/immudb), enforcing immutable data policies
+* Local data store, [ImmuDB](https://github.com/codenotary/immudb), enforcing immutable data policies
   * more about `ImmuDB` on [this podcast](https://changelog.com/gotime/219).
-* Object storage, S3 API compatible object storage (hosted on [Minio](https://github.com/minio/minio) by default)
-  * RClone, for handling jobs with object storage
-* (maybe) Background (cron) job handling on [Dkron](https://dkron.io/), and [GoFS](https://github.com/no-src/gofs), across-platform file synchronization tool out of the box based on golang
+* Object storage, S3 API compatible object storage ([MinIO](https://github.com/minio/minio) by default)
 
 ## Contributors
 
