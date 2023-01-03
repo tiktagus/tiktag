@@ -13,7 +13,29 @@ Tiktag server offers the following features,
    * how search is configured;
    * how much asset handling logs you want to share with others
 
-### Commands (examples)
+### Install `tiktag`
+
+Before you install `tiktag`,
+1. you've got Golang installed on your local environment, typically the Terminal app in MacOS;
+2. you've `cd` to your asset's directory, where you're going to use `tiktag` for the job;
+
+```
+> go install https://github.com/tikoly-com/tiktag@latest
+```
+
+After you've installed `tiktag`,
+3. make sure you copy `[config.yaml.sample](https://github.com/tikoly-com/tiktag/blob/main/config.yaml.sample)` to `config.yaml` your asset's directory, and configure your S3-compatible object storage of choice, such as MinIO,
+
+```
+ minio:
+  endpoint: "s3.example.com"
+  accessKey: "example"
+  secretKey: "example"
+  useSSL: true
+  bucketName: "example"
+```
+
+### Command (examples)
 
 1. Host a photo or file,
    
@@ -86,7 +108,7 @@ Candidate tech dependencies for making TikTag happen,
 * Written in Go
 * Local data store, [ImmuDB](https://github.com/codenotary/immudb), enforcing immutable data policies
   * more about `ImmuDB` on [this podcast](https://changelog.com/gotime/219).
-* Object storage, S3 API compatible object storage ([MinIO](https://github.com/minio/minio) by default)
+* Object storage, S3-compatible object storage ([MinIO](https://github.com/minio/minio) by default)
 
 ## Contributors
 
