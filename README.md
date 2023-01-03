@@ -15,7 +15,7 @@ Tiktag server offers the following features,
 
 ### Install `tiktag`
 
-Before you install `tiktag`,
+Before you install `tiktag`, make sure that,
 1. you've got Golang installed on your local environment, typically the Terminal app in MacOS;
 2. you've `cd` to your asset's directory, where you're going to use `tiktag` for the job;
 
@@ -24,15 +24,16 @@ Before you install `tiktag`,
 ```
 
 After you've installed `tiktag`,
-3. make sure you copy `[config.yaml.sample](https://github.com/tikoly-com/tiktag/blob/main/config.yaml.sample)` to `config.yaml` your asset's directory, and configure your S3-compatible object storage of choice, such as MinIO,
+
+3. make sure you copy [`config.yaml.sample`](https://github.com/tikoly-com/tiktag/blob/main/config.yaml.sample) to `config.yaml` your asset's directory, and configure your S3-compatible object storage of choice, such as MinIO,
 
 ```
  minio:
   endpoint: "s3.example.com"
-  accessKey: "example"
-  secretKey: "example"
+  accessKey: "my_minio_access_key"
+  secretKey: "my_minio_secret_key"
   useSSL: true
-  bucketName: "example"
+  bucketName: "my_minio_bucket_name"
 ```
 
 ### Command (examples)
