@@ -1,6 +1,6 @@
 # TikTag
 
-`TikTag` is a command-line tool for hosting and sharing digital asssets via object storage.
+`TikTag` is a command-line tool for hosting and sharing digital assets via object storage.
 
 ## Features (v0.1)
 
