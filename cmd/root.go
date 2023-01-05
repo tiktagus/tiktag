@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -30,7 +31,7 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		id := getFileId()
+		id := NextID()
 		// fmt.Println(id)
 
 		fmt.Printf("Tik...Tag...")
@@ -69,12 +70,27 @@ func init() {
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	os.Setenv("LOG_LEVEL", "warn") // Clear immudb log
+
+	home := os.Getenv("HOME")
+	name := "config"
+	ftype := "yaml"
+	dir := ".tiktag"
+	configFile := fmt.Sprintf("%s.%s", path.Join(home, dir, name), ftype)
+	fmt.Println(configFile)
+	if _, err := os.Stat(configFile); err != nil {
+		fmt.Println("The first time you run tiktag, will create a config file step by step:")
+
+		// Create .tiktag if not exist
+
+		// Set configs
+
+		// Save
+	}
+
 	viper.AutomaticEnv()
 
-	viper.SetConfigName("config")        // name of config file (without extension)
-	viper.SetConfigType("yaml")          // REQUIRED if the config file does not have the extension in the name
-	viper.AddConfigPath("/etc/tiktag/")  // path to look for the config file in
-	viper.AddConfigPath("$HOME/.tiktag") // call multiple times to add many search paths
-	viper.AddConfigPath(".")             // optionally look for config in the working directory
+	viper.SetConfigName(name)                         // name of config file (without extension)
+	viper.SetConfigType(ftype)                        // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath(fmt.Sprintf("$HOME/%s", dir)) // call multiple times to add many search paths
 	viper.ReadInConfig()
 }

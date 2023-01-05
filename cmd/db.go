@@ -6,24 +6,7 @@ import (
 
 	"github.com/codenotary/immudb/embedded/sql"
 	"github.com/codenotary/immudb/embedded/store"
-	"github.com/sony/sonyflake"
 )
-
-func getFileId() uint64 {
-	// Sonyflake Id
-	var st sonyflake.Settings
-	st.CheckMachineID = fakeMachineID
-	sf := sonyflake.NewSonyflake(st)
-	if sf == nil {
-		log.Fatal("New Sonyflake failed!")
-	}
-
-	id, err := sf.NextID()
-	if err != nil {
-		log.Fatal("NextID failed!")
-	}
-	return id
-}
 
 type TTAsset struct {
 	ttid     uint64
