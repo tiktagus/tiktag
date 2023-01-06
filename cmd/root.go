@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -70,27 +71,46 @@ func init() {
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	os.Setenv("LOG_LEVEL", "warn") // Clear immudb log
-
-	home := os.Getenv("HOME")
-	name := "config"
-	ftype := "yaml"
-	dir := ".tiktag"
-	configFile := fmt.Sprintf("%s.%s", path.Join(home, dir, name), ftype)
-	fmt.Println(configFile)
-	if _, err := os.Stat(configFile); err != nil {
-		fmt.Println("The first time you run tiktag, will create a config file step by step:")
-
-		// Create .tiktag if not exist
-
-		// Set configs
-
-		// Save
-	}
-
 	viper.AutomaticEnv()
 
-	viper.SetConfigName(name)                         // name of config file (without extension)
-	viper.SetConfigType(ftype)                        // REQUIRED if the config file does not have the extension in the name
+	name := "config"
+	ftype := "yaml"
+	viper.SetConfigName(name)  // name of config file (without extension)
+	viper.SetConfigType(ftype) // REQUIRED if the config file does not have the extension in the name
+	dir := ".tiktag"
 	viper.AddConfigPath(fmt.Sprintf("$HOME/%s", dir)) // call multiple times to add many search paths
+
+	home := os.Getenv("HOME")
+	configFile := fmt.Sprintf("%s.%s", path.Join(home, dir, name), ftype)
+	// fmt.Println(configFile)
+	if _, err := os.Stat(configFile); err != nil {
+		fmt.Println("The first time you run tiktag, will create a sample config file: ")
+
+		// Create .tiktag if not exist
+		tiktagDir := path.Join(home, dir)
+		if _, err = os.Stat(tiktagDir); err != nil {
+			fmt.Printf(" * %s created.\n", tiktagDir)
+			os.Mkdir(tiktagDir, os.ModePerm)
+		}
+
+		// Set configs
+		viper.SetDefault(Endpoint, "s3.example.com")
+		viper.SetDefault(AccessKeyID, "example")
+		viper.SetDefault(SecretAccessKey, "example")
+		viper.SetDefault(UseSSL, true)
+		viper.SetDefault(BucketName, "example")
+
+		// Save
+		f, e := os.Create(configFile)
+		if e != nil {
+			log.Fatal(e)
+		}
+		f.Close()
+		fmt.Printf(" * Save default config settings to %s, please edit with your own configs then run again.\n", configFile)
+		viper.WriteConfig()
+
+		os.Exit(1)
+	}
+
 	viper.ReadInConfig()
 }

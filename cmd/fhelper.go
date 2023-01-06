@@ -49,13 +49,21 @@ func getFileHash(fn string) (string, string) {
 	return fHash, contentType
 }
 
+const (
+	Endpoint        string = "minio.endpoint"
+	AccessKeyID            = "minio.id"
+	SecretAccessKey        = "minio.secret"
+	UseSSL                 = "minio.useSSL"
+	BucketName             = "minio.bucketName"
+)
+
 func publishFile(id uint64, fn string, contentType string) (string, string) {
 	// Minio
 	ctx := context.Background()
-	endpoint := viper.GetString("minio.endpoint")
-	accessKeyID := viper.GetString("minio.id")
-	secretAccessKey := viper.GetString("minio.secret")
-	useSSL := viper.GetBool("minio.useSSL")
+	endpoint := viper.GetString(Endpoint)
+	accessKeyID := viper.GetString(AccessKeyID)
+	secretAccessKey := viper.GetString(SecretAccessKey)
+	useSSL := viper.GetBool(UseSSL)
 
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, &minio.Options{
@@ -67,7 +75,7 @@ func publishFile(id uint64, fn string, contentType string) (string, string) {
 	}
 
 	// Make a new bucket called mymusic.
-	bucketName := viper.GetString("minio.bucketName")
+	bucketName := viper.GetString(BucketName)
 
 	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{})
 	if err != nil {
