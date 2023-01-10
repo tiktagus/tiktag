@@ -51,8 +51,8 @@ func getFileHash(fn string) (string, string) {
 
 const (
 	Endpoint        string = "minio.endpoint"
-	AccessKeyID            = "minio.id"
-	SecretAccessKey        = "minio.secret"
+	AccessKeyID            = "minio.accessKey"
+	SecretAccessKey        = "minio.secretKey"
 	UseSSL                 = "minio.useSSL"
 	BucketName             = "minio.bucketName"
 )
