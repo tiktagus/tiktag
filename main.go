@@ -1,10 +1,9 @@
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
 */
 package main
 
-import "github.com/twinsant/tiktag/cmd"
+import cmd "github.com/tikoly-com/tiktag/cmd"
 
 func main() {
 	cmd.Execute()
