@@ -20,12 +20,23 @@ Before you install `tiktag`, make sure that,
 2. you've `cd` to your asset's directory, where you're going to use `tiktag` for the job;
 
 ```
-> go install https://github.com/tikoly-com/tiktag@latest
+> go install github.com/tikoly-com/tiktag@latest
+> which tiktag
+/path/to/your/bin/tiktag
 ```
 
 After you've installed `tiktag`,
 
-3. make sure you copy [`config.yaml.sample`](https://github.com/tikoly-com/tiktag/blob/main/config.yaml.sample) to `config.yaml` your asset's directory, and configure your S3-compatible object storage of choice, such as MinIO,
+3. The first time you run tiktag will create a config file for you
+
+```
+> tiktag
+The first time you run tiktag, will create a sample config file:
+ * Save default config settings to /path/to/your/home/.tiktag/config.yaml, please edit with your own configs then run again.
+
+```
+
+4. make sure you checked [`config.yaml.sample`](https://github.com/tikoly-com/tiktag/blob/main/config.yaml.sample) and modified `config.yaml` in your home tiktag directory, and configure your S3-compatible object storage of choice, such as MinIO,
 
 ```
  minio:
@@ -35,6 +46,8 @@ After you've installed `tiktag`,
   useSSL: true
   bucketName: "my_minio_bucket_name"
 ```
+
+5. Then read the command section to share your own asset.
 
 ### Command (examples)
 
