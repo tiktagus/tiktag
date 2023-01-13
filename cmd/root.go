@@ -77,20 +77,19 @@ func init() {
 	ftype := "yaml"
 	viper.SetConfigName(name)  // name of config file (without extension)
 	viper.SetConfigType(ftype) // REQUIRED if the config file does not have the extension in the name
-	dir := ".tiktag"
-	viper.AddConfigPath(fmt.Sprintf("$HOME/%s", dir)) // call multiple times to add many search paths
 
-	home := os.Getenv("HOME")
-	configFile := fmt.Sprintf("%s.%s", path.Join(home, dir, name), ftype)
+	configDir := GetConfigDir()
+	viper.AddConfigPath(configDir) // call multiple times to add many search paths
+
+	configFile := fmt.Sprintf("%s.%s", path.Join(configDir, name), ftype)
 	// fmt.Println(configFile)
 	if _, err := os.Stat(configFile); err != nil {
 		fmt.Println("The first time you run tiktag, will create a sample config file: ")
 
 		// Create .tiktag if not exist
-		tiktagDir := path.Join(home, dir)
-		if _, err = os.Stat(tiktagDir); err != nil {
-			fmt.Printf(" * %s created.\n", tiktagDir)
-			os.Mkdir(tiktagDir, os.ModePerm)
+		if _, err = os.Stat(configDir); err != nil {
+			fmt.Printf(" * %s created.\n", configDir)
+			os.Mkdir(configDir, os.ModePerm)
 		}
 
 		// Set configs

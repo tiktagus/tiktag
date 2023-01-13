@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"path"
 
 	"github.com/codenotary/immudb/embedded/sql"
 	"github.com/codenotary/immudb/embedded/store"
@@ -32,7 +33,8 @@ func (db *DB) Open() {
 	var err error
 	// immudb embedded
 	// create/open immudb store at specified path
-	db.store, err = store.Open("data", store.DefaultOptions())
+	dataDir := path.Join(GetConfigDir(), "data")
+	db.store, err = store.Open(dataDir, store.DefaultOptions())
 	handleErr(err)
 
 	// initialize sql engine (specify a key-prefix to isolate generated kv entries)

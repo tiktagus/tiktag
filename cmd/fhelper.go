@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/minio/minio-go/v7"
@@ -105,4 +106,12 @@ func publishFile(id uint64, fn string, contentType string) (string, string) {
 	// log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
 	url := fmt.Sprintf("https://%s/%s/%s", endpoint, bucketName, objectName)
 	return url, ext
+}
+
+const DIR = ".tiktag"
+
+func GetConfigDir() string {
+	home := os.Getenv("HOME")
+	configDir := path.Join(home, DIR)
+	return configDir
 }
