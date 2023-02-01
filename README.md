@@ -1,6 +1,8 @@
 # TikTag
 
-`TikTag` is a command-line tool for hosting and sharing digital assets via object storage.
+`TikTag` is a command-line app for preparing images for blogging, sharing or NFT-minting.
+
+`TikTag` is shipped as a local command-line app written in Go. This locally run app provides basic features for hosting and sharing images and files. It will depend on hosted service at [tiktag.us](https://tiktag.us) to access premium features such as minting your digital assets as NFTs.
 
 ## Features (v0.x)
 
